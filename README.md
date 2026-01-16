@@ -81,8 +81,8 @@ The `sanity init --env` command will:
 After running the command, you may need to add additional variables to `apps/web/.env.local`:
 
 ```env
-NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
-NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_STUDIO_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_STUDIO_DATASET=production
 NEXT_PUBLIC_URL=http://localhost:3000
 SANITY_API_TOKEN=your_api_token
 ```
@@ -101,8 +101,8 @@ SANITY_STUDIO_DATASET=production
 **`apps/web/.env`**
 
 ```env
-SANITY_PROJECT_ID=your_project_id
-SANITY_DATASET=production
+SANITY_STUDIO_PROJECT_ID=your_project_id
+SANITY_STUDIO_DATASET=production
 SANITY_API_VERSION=2026-01-16
 
 # Optional: For server-side authenticated requests
@@ -223,8 +223,8 @@ The Sanity Studio is built and deployed as part of the Astro app at `/cms`.
 Set these in your Cloudflare Workers dashboard:
 
 ```env
-SANITY_PROJECT_ID=your_project_id
-SANITY_DATASET=production
+SANITY_STUDIO_PROJECT_ID=your_project_id
+SANITY_STUDIO_DATASET=production
 SANITY_API_VERSION=2026-01-16
 SANITY_TOKEN=your_api_token
 SANITY_STUDIO_PROJECT_ID=your_project_id

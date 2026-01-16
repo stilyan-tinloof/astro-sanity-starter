@@ -10,11 +10,14 @@ export default defineConfig({
   output: "server",
   env: {
     schema: {
-      SANITY_PROJECT_ID: envField.string({
+      SANITY_STUDIO_PROJECT_ID: envField.string({
         access: "public",
         context: "client",
       }),
-      SANITY_DATASET: envField.string({ access: "public", context: "client" }),
+      SANITY_STUDIO_DATASET: envField.string({
+        access: "public",
+        context: "client",
+      }),
       SANITY_API_VERSION: envField.string({
         access: "public",
         default: "2026-01-16",
