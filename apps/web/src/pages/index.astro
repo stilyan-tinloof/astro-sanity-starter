@@ -1,0 +1,13 @@
+---
+import { sanityClient } from '@/lib/sanity';
+import { HOME_QUERY } from '@packages/sanity/queries';
+import Layout from '../layouts/layout.astro';
+export const prerender = true
+
+const homeData = await sanityClient.fetch(HOME_QUERY);
+---
+
+<Layout>
+	<h1>Sanity Data:</h1>
+	<pre>{JSON.stringify(homeData, null, 2)}</pre>
+</Layout>
