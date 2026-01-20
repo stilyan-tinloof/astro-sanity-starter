@@ -69,6 +69,9 @@ importers:
       groq:
         specifier: ^5.4.0
         version: 5.4.0
+      history:
+        specifier: ^5.3.0
+        version: 5.3.0
       react:
         specifier: ^19.2.3
         version: 19.2.3
