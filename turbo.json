@@ -21,7 +21,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "with": ["typegen:watch"]
     },
     "typegen": {
       "outputs": ["schema.json", "sanity.types.ts"],
