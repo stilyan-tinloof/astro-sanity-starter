@@ -1,1 +1,1 @@
-/// <reference types="@packages/sanity/types" />
+/// <reference types="../sanity.types" />

@@ -11,6 +11,11 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.dev.vars
+
+# Sanity generated files
+sanity.types.ts
+schema.json
 
 # Testing
 coverage

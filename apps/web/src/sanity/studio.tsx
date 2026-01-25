@@ -2,7 +2,7 @@ import { createHashHistory, type History, type Listener } from "history";
 import React from "react";
 
 import { defineConfig, Studio } from "sanity";
-import baseConfig from "../sanity.config";
+import baseConfig from "../../sanity.config";
 
 const config = defineConfig({
   ...baseConfig,
