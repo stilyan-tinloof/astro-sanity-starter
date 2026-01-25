@@ -3,7 +3,7 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "typegen"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
@@ -23,24 +23,14 @@
       "cache": false,
       "persistent": true
     },
-    "@apps/web#typegen": {
+    "typegen": {
       "outputs": ["schema.json", "sanity.types.ts"],
       "cache": true,
       "env": ["PUBLIC_SANITY_PROJECT_ID", "PUBLIC_SANITY_DATASET"]
     },
-    "@apps/web#typegen:watch": {
+    "typegen:watch": {
       "cache": false,
       "persistent": true
-    },
-    "@apps/web#build": {
-      "dependsOn": ["@apps/web#typegen"],
-      "outputs": ["dist/**"],
-      "cache": true,
-      "env": [
-        "PUBLIC_SANITY_PROJECT_ID",
-        "PUBLIC_SANITY_DATASET",
-        "SANITY_TOKEN"
-      ]
     }
   }
 }
