@@ -16,7 +16,11 @@
       "Bash(pnpm tsc:*)",
       "Bash(pnpm sanity typegen:*)",
       "Bash(pnpm sanity help typegen:*)",
-      "Bash(pnpm typegen:*)"
+      "Bash(pnpm typegen:*)",
+      "Bash(pnpm sanity documents query:*)",
+      "mcp__Sanity__query_documents",
+      "mcp__Sanity__patch_document_from_json",
+      "mcp__Sanity__publish_documents"
     ],
     "deny": [],
     "ask": []

@@ -1,18 +1,13 @@
 ---
-import { getClient } from '@/sanity';
+import { sanityClient } from '@/sanity';
 import { HOME_QUERY } from '@/sanity/queries';
 import type { HOME_QUERY_RESULT } from '../../sanity.types';
 import Layout from '../layouts/layout.astro';
+import PageContent from '../components/PageContent.astro';
 
-const sanityClient = getClient({
-  PUBLIC_SANITY_PROJECT_ID: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  PUBLIC_SANITY_DATASET: import.meta.env.PUBLIC_SANITY_DATASET,
-  SANITY_TOKEN: import.meta.env.SANITY_TOKEN,
-} as Env);
 const homeData = await sanityClient.fetch<HOME_QUERY_RESULT>(HOME_QUERY);
 ---
 
-<Layout>
-	<h1>Sanity Data:</h1>
-	<pre>{JSON.stringify(homeData, null, 2)}</pre>
+<Layout title={homeData?.title || 'Home'}>
+  <PageContent title={homeData?.title} content={homeData?.content} />
 </Layout>

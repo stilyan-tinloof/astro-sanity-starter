@@ -1,0 +1,32 @@
+---
+import type { HEADER_QUERY_RESULT } from '../../sanity.types';
+
+interface Props {
+  data: HEADER_QUERY_RESULT;
+}
+
+const { data } = Astro.props;
+---
+
+{data && (
+  <header class="border-b border-gray-200 py-4">
+    <div class="container mx-auto px-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold">
+        {data.title}
+      </a>
+      {data.navigation && data.navigation.length > 0 && (
+        <nav>
+          <ul class="flex gap-6">
+            {data.navigation.map((item) => (
+              <li>
+                <a href={item.href} class="hover:underline">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </header>
+)}

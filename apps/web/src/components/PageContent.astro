@@ -1,0 +1,20 @@
+---
+import { PortableText } from 'astro-portabletext';
+import type { HOME_QUERY_RESULT } from '../../sanity.types';
+
+interface Props {
+  title: HOME_QUERY_RESULT['title'];
+  content: HOME_QUERY_RESULT['content'];
+}
+
+const { title, content } = Astro.props;
+---
+
+<article class="container mx-auto px-4 py-8">
+  {title && <h1 class="text-4xl font-bold mb-8">{title}</h1>}
+  {content && (
+    <div class="prose max-w-none">
+      <PortableText value={content} />
+    </div>
+  )}
+</article>
