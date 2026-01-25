@@ -3,7 +3,6 @@ import { getClient } from '@/sanity';
 import { HOME_QUERY } from '@/sanity/queries';
 import type { HOME_QUERY_RESULT } from '../../sanity.types';
 import Layout from '../layouts/layout.astro';
-export const prerender = true
 
 const sanityClient = getClient({
   PUBLIC_SANITY_PROJECT_ID: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
