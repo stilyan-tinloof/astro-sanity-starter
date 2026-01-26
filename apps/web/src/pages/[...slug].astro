@@ -1,27 +1,31 @@
 ---
-import { sanityClient } from '@/sanity';
-import { PAGE_QUERY, ALL_PAGES_QUERY } from '@/sanity/queries';
-import type { PAGE_QUERY_RESULT, ALL_PAGES_QUERY_RESULT } from '../../sanity.types';
-import Layout from '../layouts/layout.astro';
-import PageContent from '../components/PageContent.astro';
-
-export async function getStaticPaths() {
-  const pages = await sanityClient.fetch<ALL_PAGES_QUERY_RESULT>(ALL_PAGES_QUERY);
-
-  return pages.map((page) => ({
-    params: { slug: page.slug?.current },
-  }));
-}
+import { sanityFetch } from "@/lib/sanityFetch";
+import { PAGE_QUERY } from "@/sanity/queries";
+import type { PAGE_QUERY_RESULT } from "../../sanity.types";
+import Layout from "../layouts/layout.astro";
+import PageContent from "../components/PageContent.astro";
 
 const { slug } = Astro.params;
+const ctx = Astro.locals.runtime;
 
-const pageData = await sanityClient.fetch<PAGE_QUERY_RESULT>(PAGE_QUERY, { slug });
+const { data, tags } = await sanityFetch<PAGE_QUERY_RESULT>(
+  { query: PAGE_QUERY, params: { slug } },
+  ctx,
+);
 
-if (!pageData) {
-  return Astro.redirect('/404');
+if (!data?.page) {
+  return Astro.redirect("/404");
+}
+
+if (tags.length > 0) {
+  Astro.response.headers.set("Cache-Tag", tags.join(","));
 }
 ---
 
-<Layout title={pageData?.title || 'Page'}>
-  <PageContent title={pageData?.title} content={pageData?.content} />
+<Layout
+  title={data.page?.title || "Page"}
+  headerData={data.header}
+  footerData={data.footer}
+>
+  <PageContent title={data.page?.title} content={data.page?.content} />
 </Layout>

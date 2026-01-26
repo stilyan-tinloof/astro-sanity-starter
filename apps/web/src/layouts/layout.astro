@@ -1,21 +1,16 @@
 ---
 import '../styles/global.css';
-import { sanityClient } from '@/sanity';
-import { HEADER_QUERY, FOOTER_QUERY } from '@/sanity/queries';
 import type { HEADER_QUERY_RESULT, FOOTER_QUERY_RESULT } from '../../sanity.types';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 interface Props {
   title?: string;
+  headerData?: HEADER_QUERY_RESULT;
+  footerData?: FOOTER_QUERY_RESULT;
 }
 
-const { title = 'Astro + Sanity' } = Astro.props;
-
-const [headerData, footerData] = await Promise.all([
-  sanityClient.fetch<HEADER_QUERY_RESULT>(HEADER_QUERY),
-  sanityClient.fetch<FOOTER_QUERY_RESULT>(FOOTER_QUERY),
-]);
+const { title = 'Astro + Sanity', headerData, footerData } = Astro.props;
 ---
 
 <!doctype html>

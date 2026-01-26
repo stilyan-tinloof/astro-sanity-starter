@@ -1,13 +1,22 @@
 ---
-import { sanityClient } from '@/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { HOME_QUERY } from '@/sanity/queries';
 import type { HOME_QUERY_RESULT } from '../../sanity.types';
 import Layout from '../layouts/layout.astro';
 import PageContent from '../components/PageContent.astro';
 
-const homeData = await sanityClient.fetch<HOME_QUERY_RESULT>(HOME_QUERY);
+const ctx = Astro.locals.runtime;
+
+const { data, tags } = await sanityFetch<HOME_QUERY_RESULT>(
+  { query: HOME_QUERY },
+  ctx
+);
+
+if (tags.length > 0) {
+  Astro.response.headers.set('Cache-Tag', tags.join(','));
+}
 ---
 
-<Layout title={homeData?.title || 'Home'}>
-  <PageContent title={homeData?.title} content={homeData?.content} />
+<Layout title={data?.page?.title || 'Home'} headerData={data?.header} footerData={data?.footer}>
+  <PageContent title={data?.page?.title} content={data?.page?.content} />
 </Layout>

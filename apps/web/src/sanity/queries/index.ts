@@ -1,9 +1,39 @@
 import { defineQuery } from "groq";
 
-export const HOME_QUERY = defineQuery(`*[_type == "home"][0]`);
+// Header fragment - reused in page queries
+const HEADER_FRAGMENT = `"header": *[_type == "header"][0]{
+  title,
+  navigation[]{
+    _key,
+    label,
+    href
+  }
+}`;
 
-export const PAGE_QUERY = defineQuery(`*[_type == "page" && slug.current == $slug][0]`);
+// Footer fragment - reused in page queries
+const FOOTER_FRAGMENT = `"footer": *[_type == "footer"][0]{
+  copyright,
+  navigation[]{
+    _key,
+    label,
+    href
+  }
+}`;
 
+// Combined queries for pages (include header/footer in single request)
+export const HOME_QUERY = defineQuery(`{
+  "page": *[_type == "home"][0],
+  ${HEADER_FRAGMENT},
+  ${FOOTER_FRAGMENT}
+}`);
+
+export const PAGE_QUERY = defineQuery(`{
+  "page": *[_type == "page" && slug.current == $slug][0],
+  ${HEADER_FRAGMENT},
+  ${FOOTER_FRAGMENT}
+}`);
+
+// Standalone queries (for cases where only one is needed)
 export const ALL_PAGES_QUERY = defineQuery(`*[_type == "page" && defined(slug.current)]{ slug }`);
 
 export const HEADER_QUERY = defineQuery(`*[_type == "header"][0]{
