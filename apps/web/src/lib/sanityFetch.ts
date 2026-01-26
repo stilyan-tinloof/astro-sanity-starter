@@ -1,62 +1,50 @@
 import { sanityClient } from '@/sanity';
-import { cachedFetch, type CacheContext } from './cache';
+import { extractTags } from './cache';
+import { cachedFetch } from './cache/swr';
 import type { QueryParams } from '@sanity/client';
 
-interface SanityFetchOptions {
+interface FetchOptions {
   query: string;
   params?: QueryParams;
-  maxAge?: number;
-  swr?: number;
 }
 
-interface SanityFetchResult<T> {
+interface FetchResult<T> {
   data: T;
   tags: string[];
 }
 
-interface SanityResponse<T> {
-  result: T;
-  syncTags?: string[];
+export async function sanityFetch<T>({ query, params }: FetchOptions): Promise<FetchResult<T>> {
+  const data = await sanityClient.fetch<T>(query, params);
+
+  // Extract all document IDs as cache tags
+  const tags = extractTags(data);
+
+  return { data, tags };
+}
+
+interface CachedFetchOptions extends FetchOptions {
+  ctx?: ExecutionContext;
+  sMaxAge?: number;              // Seconds until stale (default: 60)
+  staleWhileRevalidate?: number; // Seconds to serve stale (default: 3600)
 }
 
 /**
- * Fetch data from Sanity with caching and cache tags.
- * Uses Workers Cache API with stale-while-revalidate.
+ * Cached variant of sanityFetch with stale-while-revalidate semantics.
+ * Uses Workers Cache API per-datacenter.
  */
-export async function sanityFetch<T>(
-  options: SanityFetchOptions,
-  ctx?: CacheContext
-): Promise<SanityFetchResult<T>> {
-  const { query, params = {}, maxAge, swr } = options;
+export async function cachedSanityFetch<T>(options: CachedFetchOptions): Promise<FetchResult<T>> {
+  // URL-encode query and params to create unique cache key
+  const cacheKey = `sanity:${encodeURIComponent(options.query)}:${encodeURIComponent(JSON.stringify(options.params || {}))}`;
 
-  // Create stable cache key from query + params
-  const cacheKey = `sanity:${hashQuery(query, params)}`;
+  const result = await cachedFetch(
+    cacheKey,
+    () => sanityFetch<T>({ query: options.query, params: options.params }),
+    {
+      sMaxAge: options.sMaxAge ?? 60,
+      staleWhileRevalidate: options.staleWhileRevalidate ?? 3600,
+      ctx: options.ctx,
+    }
+  );
 
-  const fetcher = async () => {
-    const response = (await sanityClient.fetch<T>(query, params, {
-      filterResponse: false,
-    })) as unknown as SanityResponse<T>;
-
-    const data = 'result' in response ? response.result : (response as T);
-    const tags = response.syncTags || [];
-
-    return { data, tags };
-  };
-
-  return cachedFetch(cacheKey, fetcher, { maxAge, swr }, ctx);
-}
-
-/**
- * Create a stable hash from query and params for cache key.
- */
-function hashQuery(query: string, params: QueryParams): string {
-  const input = JSON.stringify({ query, params });
-  // Simple hash - good enough for cache keys
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36);
+  return result;
 }

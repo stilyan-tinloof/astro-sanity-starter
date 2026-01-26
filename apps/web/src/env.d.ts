@@ -4,6 +4,12 @@
 // Workers Cache API global
 declare const caches: { default: Cache } | undefined;
 
+// Cloudflare Workers ExecutionContext (used for waitUntil)
+interface ExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+  passThroughOnException(): void;
+}
+
 interface Env {
   PUBLIC_SANITY_PROJECT_ID: string;
   PUBLIC_SANITY_DATASET: string;

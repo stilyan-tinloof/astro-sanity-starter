@@ -1,29 +1,29 @@
 ---
-import { sanityFetch } from "@/lib/sanityFetch";
-import { PAGE_QUERY } from "@/sanity/queries";
-import type { PAGE_QUERY_RESULT } from "../../sanity.types";
-import Layout from "../layouts/layout.astro";
-import PageContent from "../components/PageContent.astro";
+import { sanityFetch } from '@/lib/sanityFetch';
+import { PAGE_QUERY } from '@/sanity/queries';
+import type { PAGE_QUERY_RESULT } from '../../sanity.types';
+import Layout from '../layouts/layout.astro';
+import PageContent from '../components/PageContent.astro';
 
 const { slug } = Astro.params;
-const ctx = Astro.locals.runtime;
 
-const { data, tags } = await sanityFetch<PAGE_QUERY_RESULT>(
-  { query: PAGE_QUERY, params: { slug } },
-  ctx,
-);
+const { data, tags } = await sanityFetch<PAGE_QUERY_RESULT>({
+  query: PAGE_QUERY,
+  params: { slug },
+});
 
 if (!data?.page) {
-  return Astro.redirect("/404");
+  return Astro.redirect('/404');
 }
 
+// Set Cache-Tag header for purge-by-tag
 if (tags.length > 0) {
-  Astro.response.headers.set("Cache-Tag", tags.join(","));
+  Astro.response.headers.set('Cache-Tag', tags.join(','));
 }
 ---
 
 <Layout
-  title={data.page?.title || "Page"}
+  title={data.page?.title || 'Page'}
   headerData={data.header}
   footerData={data.footer}
 >

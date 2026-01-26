@@ -2,6 +2,7 @@ import { defineQuery } from "groq";
 
 // Header fragment - reused in page queries
 const HEADER_FRAGMENT = `"header": *[_type == "header"][0]{
+  _id,
   title,
   navigation[]{
     _key,
@@ -12,6 +13,7 @@ const HEADER_FRAGMENT = `"header": *[_type == "header"][0]{
 
 // Footer fragment - reused in page queries
 const FOOTER_FRAGMENT = `"footer": *[_type == "footer"][0]{
+  _id,
   copyright,
   navigation[]{
     _key,
@@ -22,13 +24,13 @@ const FOOTER_FRAGMENT = `"footer": *[_type == "footer"][0]{
 
 // Combined queries for pages (include header/footer in single request)
 export const HOME_QUERY = defineQuery(`{
-  "page": *[_type == "home"][0],
+  "page": *[_type == "home"][0]{ _id, ... },
   ${HEADER_FRAGMENT},
   ${FOOTER_FRAGMENT}
 }`);
 
 export const PAGE_QUERY = defineQuery(`{
-  "page": *[_type == "page" && slug.current == $slug][0],
+  "page": *[_type == "page" && slug.current == $slug][0]{ _id, ... },
   ${HEADER_FRAGMENT},
   ${FOOTER_FRAGMENT}
 }`);

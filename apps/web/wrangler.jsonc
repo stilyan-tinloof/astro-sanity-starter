@@ -1,16 +1,15 @@
 {
 	"main": "dist/_worker.js/index.js",
-  "name": "astro-sanity-starter",
-  "compatibility_date": "2026-01-16",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+	"name": "astro-sanity-starter",
+	"account_id": "b937fc8fbc3845f7e3198ff38b684eb5",
+	"compatibility_date": "2026-01-16",
+	"compatibility_flags": ["nodejs_compat"],
+	"routes": [{ "pattern": "astro.stelko.xyz", "custom_domain": true }],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
 	},
 	"observability": {
-    "enabled": true
-  }
+		"enabled": true
+	}
 }

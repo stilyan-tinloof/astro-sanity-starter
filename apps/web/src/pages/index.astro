@@ -5,13 +5,11 @@ import type { HOME_QUERY_RESULT } from '../../sanity.types';
 import Layout from '../layouts/layout.astro';
 import PageContent from '../components/PageContent.astro';
 
-const ctx = Astro.locals.runtime;
+const { data, tags } = await sanityFetch<HOME_QUERY_RESULT>({
+  query: HOME_QUERY,
+});
 
-const { data, tags } = await sanityFetch<HOME_QUERY_RESULT>(
-  { query: HOME_QUERY },
-  ctx
-);
-
+// Set Cache-Tag header for purge-by-tag
 if (tags.length > 0) {
   Astro.response.headers.set('Cache-Tag', tags.join(','));
 }
