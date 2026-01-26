@@ -1,6 +1,6 @@
 // Cache TTLs
-export const CDN_MAX_AGE = 2592000;      // 30 days for CDN (s-maxage)
-export const BROWSER_MAX_AGE = 31536000; // 1 year for browsers (max-age)
+export const CDN_MAX_AGE = 2592000;  // 30 days for CDN (s-maxage)
+export const BROWSER_MAX_AGE = 0;    // Always revalidate with CDN
 
 // Tag length - 12 chars of UUID is plenty unique
 const TAG_LENGTH = 12;
