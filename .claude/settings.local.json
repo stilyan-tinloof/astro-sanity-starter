@@ -20,7 +20,17 @@
       "Bash(pnpm sanity documents query:*)",
       "mcp__Sanity__query_documents",
       "mcp__Sanity__patch_document_from_json",
-      "mcp__Sanity__publish_documents"
+      "mcp__Sanity__publish_documents",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "mcp__Sanity__search_docs",
+      "mcp__Sanity__read_docs",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(find:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:gist.githubusercontent.com)",
+      "Bash(pnpm build:*)"
     ],
     "deny": [],
     "ask": []

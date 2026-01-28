@@ -1,1 +1,1 @@
-export { CDN_MAX_AGE, SWR_WINDOW, BROWSER_MAX_AGE, CACHE_TTL, CACHE_TIME_HEADER } from '../cache';
+export { CDN_MAX_AGE, BROWSER_MAX_AGE } from '../cache';

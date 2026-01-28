@@ -9,6 +9,7 @@ const { syncTags } = Astro.props;
 <sanity-live data-sync-tags={JSON.stringify(syncTags)}></sanity-live>
 
 <script>
+  import type { LiveEvent } from '@sanity/client';
   import { liveSanityClient } from '@/sanity';
   import { navigate } from 'astro:transitions/client';
 
@@ -17,12 +18,10 @@ const { syncTags } = Astro.props;
 
     connectedCallback() {
       const syncTags: string[] = JSON.parse(this.dataset.syncTags || '[]');
-      console.debug('[SanityLive] mounted, syncTags:', syncTags);
       this.subscribe(syncTags);
     }
 
     disconnectedCallback() {
-      console.debug('[SanityLive] unmounted, cleaning up subscription');
       this.subscription?.unsubscribe();
       this.subscription = null;
     }
@@ -31,59 +30,26 @@ const { syncTags } = Astro.props;
       this.subscription?.unsubscribe();
 
       const syncTagSet = new Set(syncTags);
-      console.debug('[SanityLive] subscribing to live events...');
 
       this.subscription = liveSanityClient.live.events().subscribe({
-        next: (event) => {
-          if (event.type === 'welcome') {
-            console.log('[SanityLive] connected');
-            return;
-          }
-
-          if (event.type === 'message') {
-            console.debug('[SanityLive] message received, event tags:', event.tags);
-
-            // Always purge ALL event tags — other cached pages need invalidation too
-            console.debug('[SanityLive] calling POST /api/revalidate with all event tags');
-
+        next: (event: LiveEvent) => {
+          if (event.type === 'message' && event.tags?.length) {
+            // Purge all event tags, then navigate if current page is affected
             fetch('/api/revalidate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ tags: event.tags }),
             })
-              .then((res) => {
-                console.debug('[SanityLive] revalidate response:', res.status);
-                return res.json();
-              })
-              .then((data) => {
-                console.debug('[SanityLive] revalidate result:', data);
-
-                // Only navigate if the current page is affected
-                const hasOverlap = event.tags.some((tag: string) => syncTagSet.has(tag));
+              .then(() => {
+                const hasOverlap = event.tags!.some((tag: string) => syncTagSet.has(tag));
                 if (hasOverlap) {
-                  console.debug('[SanityLive] current page affected, calling navigate()');
                   return navigate(window.location.href, { history: 'replace' });
-                } else {
-                  console.debug('[SanityLive] current page not affected, skipping navigate');
                 }
               })
-              .then(() => {
-                console.log('[SanityLive] revalidation complete');
-              })
-              .catch((err) => console.error('[SanityLive] revalidation failed:', err));
-            return;
+              .catch((err: Error) => console.debug('[SanityLive] revalidation failed:', err.message));
           }
-
-          if (event.type === 'restart' || event.type === 'reconnect') {
-            console.log(`[SanityLive] ${event.type}`);
-            return;
-          }
-
-          console.debug('[SanityLive] unknown event type:', event.type);
         },
-        error: (err) => {
-          console.error('[SanityLive] subscription error:', err);
-        },
+        error: (err: Error) => console.debug('[SanityLive] subscription error:', err.message),
       });
     }
   }
