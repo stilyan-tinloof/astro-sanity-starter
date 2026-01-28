@@ -42,19 +42,14 @@ const { syncTags } = Astro.props;
 
           if (event.type === 'message') {
             console.debug('[SanityLive] message received, event tags:', event.tags);
-            const matchingTags = event.tags.filter((tag: string) => syncTagSet.has(tag));
-            if (matchingTags.length === 0) {
-              console.debug('[SanityLive] no matching tags, skipping');
-              return;
-            }
 
-            console.log('[SanityLive] content changed, matching tags:', matchingTags);
-            console.debug('[SanityLive] calling POST /api/revalidate');
+            // Always purge ALL event tags — other cached pages need invalidation too
+            console.debug('[SanityLive] calling POST /api/revalidate with all event tags');
 
             fetch('/api/revalidate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ tags: matchingTags }),
+              body: JSON.stringify({ tags: event.tags }),
             })
               .then((res) => {
                 console.debug('[SanityLive] revalidate response:', res.status);
@@ -62,11 +57,18 @@ const { syncTags } = Astro.props;
               })
               .then((data) => {
                 console.debug('[SanityLive] revalidate result:', data);
-                console.debug('[SanityLive] calling navigate() to re-render');
-                return navigate(window.location.href, { history: 'replace' });
+
+                // Only navigate if the current page is affected
+                const hasOverlap = event.tags.some((tag: string) => syncTagSet.has(tag));
+                if (hasOverlap) {
+                  console.debug('[SanityLive] current page affected, calling navigate()');
+                  return navigate(window.location.href, { history: 'replace' });
+                } else {
+                  console.debug('[SanityLive] current page not affected, skipping navigate');
+                }
               })
               .then(() => {
-                console.log('[SanityLive] page re-rendered');
+                console.log('[SanityLive] revalidation complete');
               })
               .catch((err) => console.error('[SanityLive] revalidation failed:', err));
             return;

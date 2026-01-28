@@ -4,7 +4,6 @@ import { PAGE_QUERY } from '@/sanity/queries';
 import type { PAGE_QUERY_RESULT } from '../../sanity.types';
 import Layout from '../layouts/layout.astro';
 import PageContent from '../components/PageContent.astro';
-import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
 
 const { slug } = Astro.params;
 
@@ -14,11 +13,10 @@ const { data, syncTags } = await sanityFetch<PAGE_QUERY_RESULT>({
 });
 
 if (!data?.page) {
-  return Astro.redirect('/404');
+  return new Response(null, { status: 404 });
 }
 
-// Set cache headers
-Astro.response.headers.set('Cache-Control', `public, max-age=${BROWSER_MAX_AGE}, s-maxage=${CDN_MAX_AGE}`);
+// Set cache tags for tag-based purging (Cache-Control is set by middleware)
 if (syncTags.length > 0) {
   Astro.response.headers.set('Cache-Tag', syncTags.join(','));
 }

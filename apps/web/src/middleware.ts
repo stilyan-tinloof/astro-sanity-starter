@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
+import { BROWSER_MAX_AGE, CACHE_TIME_HEADER, CACHE_TTL, CDN_MAX_AGE } from '@/lib/cache';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { request } = context;
@@ -23,13 +23,36 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const cache = caches.default;
   const cacheKey = new Request(url.toString(), { method: 'GET' });
+  const ctx = context.locals.runtime?.ctx;
 
-  // Check cache first
+  // --- Cache lookup ---
   const cachedResponse = await cache.match(cacheKey);
+
   if (cachedResponse) {
-    // Return cached response with HIT header
+    // Determine freshness from X-Cache-Time header
+    const cacheTimeStr = cachedResponse.headers.get(CACHE_TIME_HEADER);
+    const cacheTime = cacheTimeStr ? parseInt(cacheTimeStr, 10) : 0;
+    const age = cacheTime ? (Date.now() - cacheTime) / 1000 : Infinity;
+
+    if (age < CDN_MAX_AGE) {
+      // FRESH — serve as-is
+      const headers = new Headers(cachedResponse.headers);
+      headers.set('X-Cache', 'HIT');
+      return new Response(cachedResponse.body, {
+        status: cachedResponse.status,
+        statusText: cachedResponse.statusText,
+        headers,
+      });
+    }
+
+    // STALE — serve stale, delete cache entry so next request renders fresh
     const headers = new Headers(cachedResponse.headers);
-    headers.set('X-Cache', 'HIT');
+    headers.set('X-Cache', 'STALE');
+
+    if (ctx?.waitUntil) {
+      ctx.waitUntil(cache.delete(cacheKey));
+    }
+
     return new Response(cachedResponse.body, {
       status: cachedResponse.status,
       statusText: cachedResponse.statusText,
@@ -37,32 +60,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
-  // Cache miss - render the page
+  // --- Cache MISS — render the page ---
   const originalResponse = await next();
 
-  // Only cache successful responses
   if (originalResponse.status !== 200) {
     return originalResponse;
   }
 
-  // Build headers for cached response
-  const headers = new Headers(originalResponse.headers);
-  if (!headers.has('Cache-Control')) {
-    headers.set('Cache-Control', `public, max-age=${BROWSER_MAX_AGE}, s-maxage=${CDN_MAX_AGE}`);
-  }
-
-  // Read body once, use for both cache and response
   const body = await originalResponse.arrayBuffer();
+  const headers = new Headers(originalResponse.headers);
+  headers.set('Cache-Control', `public, max-age=${BROWSER_MAX_AGE}, s-maxage=${CACHE_TTL}`);
+  headers.set(CACHE_TIME_HEADER, Date.now().toString());
 
-  // Create response to cache (without X-Cache header)
   const responseToCache = new Response(body, {
     status: originalResponse.status,
     statusText: originalResponse.statusText,
     headers,
   });
 
-  // Store in cache (non-blocking via waitUntil)
-  const ctx = context.locals.runtime?.ctx;
+  // Store in cache
   if (ctx?.waitUntil) {
     ctx.waitUntil(cache.put(cacheKey, responseToCache.clone()));
   } else {
