@@ -1,16 +1,19 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import type { HEADER_QUERY_RESULT, FOOTER_QUERY_RESULT } from '../../sanity.types';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SanityLive from '../components/SanityLive.astro';
 
 interface Props {
   title?: string;
   headerData?: HEADER_QUERY_RESULT;
   footerData?: FOOTER_QUERY_RESULT;
+  syncTags?: string[];
 }
 
-const { title = 'Astro + Sanity', headerData, footerData } = Astro.props;
+const { title = 'Astro + Sanity', headerData, footerData, syncTags = [] } = Astro.props;
 ---
 
 <!doctype html>
@@ -21,6 +24,7 @@ const { title = 'Astro + Sanity', headerData, footerData } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body class="min-h-full flex flex-col">
     <Header data={headerData} />
@@ -28,5 +32,6 @@ const { title = 'Astro + Sanity', headerData, footerData } = Astro.props;
       <slot />
     </main>
     <Footer data={footerData} />
+    <SanityLive syncTags={syncTags} />
   </body>
 </html>

@@ -8,7 +8,7 @@ import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
 
 const { slug } = Astro.params;
 
-const { data, tags } = await sanityFetch<PAGE_QUERY_RESULT>({
+const { data, syncTags } = await sanityFetch<PAGE_QUERY_RESULT>({
   query: PAGE_QUERY,
   params: { slug },
 });
@@ -19,8 +19,8 @@ if (!data?.page) {
 
 // Set cache headers
 Astro.response.headers.set('Cache-Control', `public, max-age=${BROWSER_MAX_AGE}, s-maxage=${CDN_MAX_AGE}`);
-if (tags.length > 0) {
-  Astro.response.headers.set('Cache-Tag', tags.join(','));
+if (syncTags.length > 0) {
+  Astro.response.headers.set('Cache-Tag', syncTags.join(','));
 }
 ---
 
@@ -28,6 +28,7 @@ if (tags.length > 0) {
   title={data.page?.title || 'Page'}
   headerData={data.header}
   footerData={data.footer}
+  syncTags={syncTags}
 >
   <PageContent title={data.page?.title} content={data.page?.content} />
 </Layout>

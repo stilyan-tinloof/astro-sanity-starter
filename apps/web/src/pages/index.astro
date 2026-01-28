@@ -6,17 +6,17 @@ import Layout from '../layouts/layout.astro';
 import PageContent from '../components/PageContent.astro';
 import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
 
-const { data, tags } = await sanityFetch<HOME_QUERY_RESULT>({
+const { data, syncTags } = await sanityFetch<HOME_QUERY_RESULT>({
   query: HOME_QUERY,
 });
 
 // Set cache headers
 Astro.response.headers.set('Cache-Control', `public, max-age=${BROWSER_MAX_AGE}, s-maxage=${CDN_MAX_AGE}`);
-if (tags.length > 0) {
-  Astro.response.headers.set('Cache-Tag', tags.join(','));
+if (syncTags.length > 0) {
+  Astro.response.headers.set('Cache-Tag', syncTags.join(','));
 }
 ---
 
-<Layout title={data?.page?.title || 'Home'} headerData={data?.header} footerData={data?.footer}>
+<Layout title={data?.page?.title || 'Home'} headerData={data?.header} footerData={data?.footer} syncTags={syncTags}>
   <PageContent title={data?.page?.title} content={data?.page?.content} />
 </Layout>

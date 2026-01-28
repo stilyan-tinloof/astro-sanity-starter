@@ -16,7 +16,6 @@ interface Env {
   SANITY_TOKEN: string;
   CF_ZONE_ID: string;
   CF_API_TOKEN: string;
-  PURGE_SECRET: string;
   ASSETS: Fetcher;
 }
 

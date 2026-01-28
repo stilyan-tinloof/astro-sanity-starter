@@ -1,0 +1,90 @@
+---
+interface Props {
+  syncTags: string[];
+}
+
+const { syncTags } = Astro.props;
+---
+
+<sanity-live data-sync-tags={JSON.stringify(syncTags)}></sanity-live>
+
+<script>
+  import { liveSanityClient } from '@/sanity';
+  import { navigate } from 'astro:transitions/client';
+
+  class SanityLive extends HTMLElement {
+    private subscription: { unsubscribe: () => void } | null = null;
+
+    connectedCallback() {
+      const syncTags: string[] = JSON.parse(this.dataset.syncTags || '[]');
+      console.debug('[SanityLive] mounted, syncTags:', syncTags);
+      this.subscribe(syncTags);
+    }
+
+    disconnectedCallback() {
+      console.debug('[SanityLive] unmounted, cleaning up subscription');
+      this.subscription?.unsubscribe();
+      this.subscription = null;
+    }
+
+    private subscribe(syncTags: string[]) {
+      this.subscription?.unsubscribe();
+
+      const syncTagSet = new Set(syncTags);
+      console.debug('[SanityLive] subscribing to live events...');
+
+      this.subscription = liveSanityClient.live.events().subscribe({
+        next: (event) => {
+          if (event.type === 'welcome') {
+            console.log('[SanityLive] connected');
+            return;
+          }
+
+          if (event.type === 'message') {
+            console.debug('[SanityLive] message received, event tags:', event.tags);
+            const matchingTags = event.tags.filter((tag: string) => syncTagSet.has(tag));
+            if (matchingTags.length === 0) {
+              console.debug('[SanityLive] no matching tags, skipping');
+              return;
+            }
+
+            console.log('[SanityLive] content changed, matching tags:', matchingTags);
+            console.debug('[SanityLive] calling POST /api/revalidate');
+
+            fetch('/api/revalidate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tags: matchingTags }),
+            })
+              .then((res) => {
+                console.debug('[SanityLive] revalidate response:', res.status);
+                return res.json();
+              })
+              .then((data) => {
+                console.debug('[SanityLive] revalidate result:', data);
+                console.debug('[SanityLive] calling navigate() to re-render');
+                return navigate(window.location.href, { history: 'replace' });
+              })
+              .then(() => {
+                console.log('[SanityLive] page re-rendered');
+              })
+              .catch((err) => console.error('[SanityLive] revalidation failed:', err));
+            return;
+          }
+
+          if (event.type === 'restart' || event.type === 'reconnect') {
+            console.log(`[SanityLive] ${event.type}`);
+            return;
+          }
+
+          console.debug('[SanityLive] unknown event type:', event.type);
+        },
+        error: (err) => {
+          console.error('[SanityLive] subscription error:', err);
+        },
+      });
+    }
+  }
+
+  customElements.define('sanity-live', SanityLive);
+</script>

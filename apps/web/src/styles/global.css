@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Disable ClientRouter crossfade animation — keep SPA navigation, no visual transition */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation: none !important;
+}

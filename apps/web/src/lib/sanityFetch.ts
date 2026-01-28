@@ -1,5 +1,4 @@
 import { sanityClient } from '@/sanity';
-import { extractTags } from './cache';
 import type { QueryParams } from '@sanity/client';
 
 interface FetchOptions {
@@ -9,14 +8,18 @@ interface FetchOptions {
 
 interface FetchResult<T> {
   data: T;
-  tags: string[];
+  syncTags: string[];
 }
 
 export async function sanityFetch<T>({ query, params }: FetchOptions): Promise<FetchResult<T>> {
-  const data = await sanityClient.fetch<T>(query, params);
+  console.debug('[sanityFetch] query:', query, 'params:', params);
 
-  // Extract all document IDs as cache tags
-  const tags = extractTags(data);
+  const { result, syncTags } = await sanityClient.fetch<T>(query, params, {
+    filterResponse: false,
+  });
 
-  return { data, tags };
+  console.debug('[sanityFetch] syncTags:', syncTags);
+  console.debug('[sanityFetch] result keys:', result && typeof result === 'object' ? Object.keys(result) : typeof result);
+
+  return { data: result, syncTags: syncTags ?? [] };
 }
