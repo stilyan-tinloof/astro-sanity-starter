@@ -5,6 +5,8 @@ import type { HEADER_QUERY_RESULT, FOOTER_QUERY_RESULT } from '../../sanity.type
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SanityLive from '../components/SanityLive.astro';
+import VisualEditing from '../components/VisualEditing.astro';
+import { DraftModeToast } from '../components/DraftModeToast';
 
 interface Props {
   title?: string;
@@ -14,6 +16,9 @@ interface Props {
 }
 
 const { title = 'Astro + Sanity', headerData, footerData, syncTags = [] } = Astro.props;
+
+// Enable visual editing when in draft mode (set by /api/draft-mode/enable)
+const visualEditingEnabled = Astro.cookies.get('sanity-draft-mode')?.value === 'true';
 ---
 
 <!doctype html>
@@ -33,5 +38,7 @@ const { title = 'Astro + Sanity', headerData, footerData, syncTags = [] } = Astr
     </main>
     <Footer data={footerData} />
     <SanityLive syncTags={syncTags} />
+    <VisualEditing enabled={visualEditingEnabled} />
+    {visualEditingEnabled && <DraftModeToast client:only="react" />}
   </body>
 </html>

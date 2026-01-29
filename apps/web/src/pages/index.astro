@@ -8,6 +8,7 @@ import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
 
 const { data, syncTags } = await sanityFetch<HOME_QUERY_RESULT>({
   query: HOME_QUERY,
+  cookies: Astro.cookies,
 });
 
 // Set cache headers

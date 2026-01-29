@@ -15,6 +15,11 @@
 		"turbo": "^2.6.3",
 		"typescript": "^5.9.3"
 	},
+	"pnpm": {
+		"overrides": {
+			"sanity": "^5.4.0"
+		}
+	},
 	"engines": {
 		"node": ">=18"
 	},

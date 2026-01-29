@@ -11,6 +11,7 @@ const { slug } = Astro.params;
 const { data, syncTags } = await sanityFetch<PAGE_QUERY_RESULT>({
   query: PAGE_QUERY,
   params: { slug },
+  cookies: Astro.cookies,
 });
 
 if (!data?.page) {

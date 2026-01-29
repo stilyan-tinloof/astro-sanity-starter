@@ -5,13 +5,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { request } = context;
   const url = new URL(request.url);
 
-  // Skip caching for non-GET, API routes, CMS, static assets
+  // Skip caching for non-GET, API routes, CMS, static assets, and draft mode
+  const isDraftMode = request.headers.get('cookie')?.includes('sanity-draft-mode=true');
   if (
     request.method !== 'GET' ||
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/cms') ||
     url.pathname.startsWith('/_') ||
-    url.pathname.match(/\.(js|css|ico|png|jpg|svg|woff2?)$/)
+    url.pathname.match(/\.(js|css|ico|png|jpg|svg|woff2?)$/) ||
+    isDraftMode
   ) {
     return next();
   }
