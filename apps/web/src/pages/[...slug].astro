@@ -7,10 +7,11 @@ import PageContent from '../components/PageContent.astro';
 import { CDN_MAX_AGE, BROWSER_MAX_AGE } from '@/lib/cache';
 
 const { slug } = Astro.params;
+const pathname = `/${slug ?? ''}`;
 
 const { data, syncTags } = await sanityFetch<PAGE_QUERY_RESULT>({
   query: PAGE_QUERY,
-  params: { slug },
+  params: { pathname },
   cookies: Astro.cookies,
 });
 

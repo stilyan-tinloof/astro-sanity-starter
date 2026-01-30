@@ -30,13 +30,13 @@ export const HOME_QUERY = defineQuery(`{
 }`);
 
 export const PAGE_QUERY = defineQuery(`{
-  "page": *[_type == "page" && slug.current == $slug][0]{ _id, ... },
+  "page": *[_type == "page" && pathname.current == $pathname][0]{ _id, ... },
   ${HEADER_FRAGMENT},
   ${FOOTER_FRAGMENT}
 }`);
 
 // Standalone queries (for cases where only one is needed)
-export const ALL_PAGES_QUERY = defineQuery(`*[_type == "page" && defined(slug.current)]{ slug }`);
+export const ALL_PAGES_QUERY = defineQuery(`*[_type == "page" && defined(pathname.current)]{ pathname }`);
 
 export const HEADER_QUERY = defineQuery(`*[_type == "header"][0]{
   title,
