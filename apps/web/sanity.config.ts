@@ -1,7 +1,7 @@
 import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
-import { presentationTool } from "sanity/presentation";
+import { pages } from "@tinloof/sanity-studio";
 
 import { schemaTypes } from "./src/sanity/schema";
 
@@ -13,7 +13,8 @@ export default defineConfig({
 	plugins: [
 		structureTool(),
 		visionTool(),
-		presentationTool({
+		pages({
+			abstracts: { page: false },
 			previewUrl: {
 				draftMode: {
 					enable: "/api/draft-mode/enable",
